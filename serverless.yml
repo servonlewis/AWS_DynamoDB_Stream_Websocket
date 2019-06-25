@@ -1,4 +1,4 @@
-service: itsm-stream-demo3
+service: itsm-stream-demo35
 
 provider:
   name: aws
@@ -6,9 +6,9 @@ provider:
 
   environment:
     websocketIDTable:
-      Ref: websocketIDTableNew1
+      Ref: websocketIDTableNew111
     demoTable:
-      Ref: demoTableNew1
+      Ref: demoTableNew111
 
   iamRoleStatements:
     - Effect: Allow
@@ -18,7 +18,7 @@ provider:
         - "dynamodb:DeleteItem"
         - "dynamodb:Scan"
       Resource:
-        - Fn::GetAtt: [websocketIDTableNew1, Arn]
+        - Fn::GetAtt: [websocketIDTableNew111, Arn]
     - Effect: Allow
       Action:
         - "execute-api:ManageConnections"
@@ -39,7 +39,7 @@ provider:
         - dynamodb:ListStreams
 
       Resource:
-        - Fn::GetAtt: [demoTableNew1, Arn]
+        - Fn::GetAtt: [demoTableNew111, Arn]
 
 functions:
   connectionHandler:
@@ -76,12 +76,12 @@ functions:
           cors: true
           arn:
             Fn::GetAtt:
-              - demoTableNew1
+              - demoTableNew111
               - StreamArn
 
 resources:
   Resources:
-    websocketIDTableNew1:
+    websocketIDTableNew111:
       Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
@@ -91,13 +91,13 @@ resources:
           - AttributeName: "connectionId"
             KeyType: "HASH"
         BillingMode: PAY_PER_REQUEST
-        TableName: websocketIDTableNew1
+        TableName: websocketIDTableNew111
 
-    demoTableNew1:
+    demoTableNew111:
       Type: AWS::DynamoDB::Table
       Properties:
         BillingMode: PAY_PER_REQUEST
-        TableName: demoTableNew1
+        TableName: demoTableNew111
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:

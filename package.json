@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "aws-sdk": "^2.404.0",
+    "serverless-iam-roles-per-function": "^2.0.1",
     "serverless-websockets-plugin": "^1.0.0"
   }
 }

@@ -15,7 +15,7 @@ const successfullResponse = {
 };
 
 const sendStream = (event, connectionId) => {
-  const endpoint = "r2a5gx3500.execute-api.us-east-1.amazonaws.com/dev";
+  const endpoint = "l24l517ea4.execute-api.us-east-1.amazonaws.com/dev";
   const apigwManagementApi = new AWS.ApiGatewayManagementApi({
     apiVersion: "2018-11-29",
     endpoint: endpoint
