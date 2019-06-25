@@ -1,0 +1,108 @@
+service: itsm-stream-demo3
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+
+  environment:
+    websocketIDTable:
+      Ref: websocketIDTableNew1
+    demoTable:
+      Ref: demoTableNew1
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "dynamodb:PutItem"
+        - "dynamodb:GetItem"
+        - "dynamodb:DeleteItem"
+        - "dynamodb:Scan"
+      Resource:
+        - Fn::GetAtt: [websocketIDTableNew1, Arn]
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
+
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+        - dynamodb:DescribeStream
+        - dynamodb:GetRecords
+        - dynamodb:GetShardIterator
+        - dynamodb:ListStreams
+
+      Resource:
+        - Fn::GetAtt: [demoTableNew1, Arn]
+
+functions:
+  connectionHandler:
+    handler: handler/handler.connectionHandler
+    events:
+      - websocket:
+          route: $connect
+          cors: true
+      - websocket:
+          route: $disconnect
+          cors: true
+
+  defaultHandler:
+    handler: handler/handler.defaultHandler
+    events:
+      - websocket:
+          route: $default
+          cors: true
+
+  sendMessageHandler:
+    handler: handler/handler.sendMessageHandler
+    events:
+      - websocket:
+          route: sendMessage
+          cors: true
+
+  getStream:
+    handler: handler/stream.getStream
+    events:
+      - stream:
+          type: dynamodb
+          batchSize: 1
+          startingPosition: LATEST
+          cors: true
+          arn:
+            Fn::GetAtt:
+              - demoTableNew1
+              - StreamArn
+
+resources:
+  Resources:
+    websocketIDTableNew1:
+      Type: "AWS::DynamoDB::Table"
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: "connectionId"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "connectionId"
+            KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
+        TableName: websocketIDTableNew1
+
+    demoTableNew1:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        BillingMode: PAY_PER_REQUEST
+        TableName: demoTableNew1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
