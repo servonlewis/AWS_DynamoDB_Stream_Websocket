@@ -1,14 +1,17 @@
-service: itsm-stream-demo35
+service: itsm-stream-demo36
 
 provider:
   name: aws
   runtime: nodejs10.x
 
+  plugins:
+     - serverless-iam-roles-per-function
+
   environment:
     websocketIDTable:
-      Ref: websocketIDTableNew111
+      Ref: websocketIDTableNew1111
     demoTable:
-      Ref: demoTableNew111
+      Ref: demoTableNew1111
 
   iamRoleStatements:
     - Effect: Allow
@@ -18,12 +21,8 @@ provider:
         - "dynamodb:DeleteItem"
         - "dynamodb:Scan"
       Resource:
-        - Fn::GetAtt: [websocketIDTableNew111, Arn]
-    - Effect: Allow
-      Action:
-        - "execute-api:ManageConnections"
-      Resource:
-        - "arn:aws:execute-api:*:*:**/@connections/*"
+        - Fn::GetAtt: [websocketIDTableNew1111, Arn]
+    
 
     - Effect: Allow
       Action:
@@ -39,7 +38,7 @@ provider:
         - dynamodb:ListStreams
 
       Resource:
-        - Fn::GetAtt: [demoTableNew111, Arn]
+        - Fn::GetAtt: [demoTableNew1111, Arn]
 
 functions:
   connectionHandler:
@@ -51,6 +50,13 @@ functions:
       - websocket:
           route: $disconnect
           cors: true
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
 
   defaultHandler:
     handler: handler/handler.defaultHandler
@@ -58,6 +64,13 @@ functions:
       - websocket:
           route: $default
           cors: true
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
 
   sendMessageHandler:
     handler: handler/handler.sendMessageHandler
@@ -65,6 +78,13 @@ functions:
       - websocket:
           route: sendMessage
           cors: true
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
 
   getStream:
     handler: handler/stream.getStream
@@ -76,12 +96,19 @@ functions:
           cors: true
           arn:
             Fn::GetAtt:
-              - demoTableNew111
+              - demoTableNew1111
               - StreamArn
-
+    iamRoleStatementsInherit: true
+    iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "execute-api:ManageConnections"
+      Resource:
+        - "arn:aws:execute-api:*:*:**/@connections/*"
+        
 resources:
   Resources:
-    websocketIDTableNew111:
+    websocketIDTableNew1111:
       Type: "AWS::DynamoDB::Table"
       Properties:
         AttributeDefinitions:
@@ -91,13 +118,13 @@ resources:
           - AttributeName: "connectionId"
             KeyType: "HASH"
         BillingMode: PAY_PER_REQUEST
-        TableName: websocketIDTableNew111
+        TableName: websocketIDTableNew1111
 
-    demoTableNew111:
+    demoTableNew1111:
       Type: AWS::DynamoDB::Table
       Properties:
         BillingMode: PAY_PER_REQUEST
-        TableName: demoTableNew111
+        TableName: demoTableNew1111
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
         AttributeDefinitions:
